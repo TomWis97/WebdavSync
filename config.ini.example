@@ -1,0 +1,11 @@
+[general]
+tmp_file_path = /var/tmp/filename
+
+[connection]
+host = https://some.server/remote.php/webdav
+username = me
+password = secret
+
+[file]
+remotepath = database.kdbx
+localpath = /home/me/database.kdbx
