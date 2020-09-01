@@ -51,14 +51,15 @@ def sync(tmp_file, connection, remote_path, local):
     with open(tmp_file, 'rt') as f:
         tmp_time = datetime.datetime.fromtimestamp(
                        int(f.read()))
-    margin = datetime.timedelta(seconds=1)
-    print("Time from tmp:", tmp_time)
+    # Because clocks are not always running right, this has a margin of error.
+    margin = datetime.timedelta(seconds=30)
+    #print("Time from tmp:", tmp_time)
 
     local_mtime = local.get_modified()
     remote_mtime = connection.get_modified(remote_path)
     
-    print("Remote last modified: {} ({})".format(remote_mtime, remote_mtime.timestamp()))
-    print("Local last modified: {} ({})".format(local_mtime, local_mtime.timestamp()))
+    #print("Remote last modified: {} ({})".format(remote_mtime, remote_mtime.timestamp()))
+    #print("Local last modified: {} ({})".format(local_mtime, local_mtime.timestamp()))
 
     # Sanity checks. tmp_time contains last succesful sync.
     # So tmp_time should be equal to or earlier than remote/local
@@ -84,6 +85,8 @@ def sync(tmp_file, connection, remote_path, local):
 
     if local_file_updated and not remote_file_updated:
         # Local file has been updated, so uploading it.
+        print("Last succesful sync: {}\nRemote: {}\nLocal: {}".format(
+            tmp_time, remote_mtime, local_mtime))
         print("Uploading!")
         connection.upload(remote_path, local.path)
         with open(tmp_file, 'wt') as f:
@@ -91,6 +94,8 @@ def sync(tmp_file, connection, remote_path, local):
 
     if remote_file_updated and not local_file_updated:
         # Remote file has been updated, so downloading it.
+        print("Last succesful sync: {}\nRemote: {}\nLocal: {}".format(
+            tmp_time, remote_mtime, local_mtime))
         print("Downloading!")
         connection.download(remote_path, local.path)
         local.set_modified(connection.get_modified(remote_path))
@@ -99,10 +104,8 @@ def sync(tmp_file, connection, remote_path, local):
 
     if not remote_file_updated and not local_file_updated:
         # Everything is up-to-date. Nothing to do.
-        print("Everything is up-to-date")
-
-    print("local_file_updated", local_file_updated)
-    print("remote_file_updated", remote_file_updated)
+        #print("Everything is up-to-date")
+        pass
 
 def main():
     # Loading configuration
